@@ -408,8 +408,9 @@ var tarteaucitron = {
 
         if (tarteaucitron.added[service.key] !== true) {
             tarteaucitron.added[service.key] = true;
-            
-            html += '<div id="' + service.key + 'Line" class="tarteaucitronLine">';
+
+            var requireClass = (service.require !== undefined && service.require === true) ? "tarteaucitronRequire" : "";
+            html += '<div id="' + service.key + 'Line" class="tarteaucitronLine ' + requireClass + '">';
             html += '   <div class="tarteaucitronName">';
             html += '       <b>' + service.name + '</b><br/>';
             html += '       <span id="tacCL' + service.key + '" class="tarteaucitronListCookies"></span><br/>';
@@ -515,6 +516,9 @@ var tarteaucitron = {
             for (index = 0; index < tarteaucitron.job.length; index += 1) {
                 service = s[tarteaucitron.job[index]];
                 key = service.key;
+                if (status === false && service.require !== undefined && service.require === true) {
+                    continue;
+                }
                 if (tarteaucitron.state[key] !== status) {
                     if (status === false && tarteaucitron.launch[key] === true) {
                         tarteaucitron.reloadThePage = true;
@@ -532,7 +536,12 @@ var tarteaucitron = {
         "respond": function (el, status) {
             "use strict";
             var key = el.id.replace(new RegExp("(Eng[0-9]+|Allow|Deni)ed", "g"), '');
-        
+
+            // if value is false and service require
+            if (status === false && service.require !== undefined && service.require === true) {
+                return;
+            }
+
             // return if same state
             if (tarteaucitron.state[key] === status) {
                 return;
