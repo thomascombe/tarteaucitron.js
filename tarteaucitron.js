@@ -538,7 +538,7 @@ var tarteaucitron = {
             var key = el.id.replace(new RegExp("(Eng[0-9]+|Allow|Deni)ed", "g"), '');
 
             // if value is false and service require
-            if (status === false && service.require !== undefined && service.require === true) {
+            if (status === false && tarteaucitron.services[key].require !== undefined && tarteaucitron.services[key].require === true) {
                 return;
             }
 
