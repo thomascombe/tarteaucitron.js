@@ -408,8 +408,9 @@ var tarteaucitron = {
 
         if (tarteaucitron.added[service.key] !== true) {
             tarteaucitron.added[service.key] = true;
-            
-            html += '<div id="' + service.key + 'Line" class="tarteaucitronLine">';
+
+            var requireClass = (service.require !== undefined && service.require === true) ? "tarteaucitronRequire" : "";
+            html += '<div id="' + service.key + 'Line" class="tarteaucitronLine ' + requireClass + '">';
             html += '   <div class="tarteaucitronName">';
             html += '       <b>' + service.name + '</b><br/>';
             html += '       <span id="tacCL' + service.key + '" class="tarteaucitronListCookies"></span><br/>';
@@ -515,6 +516,9 @@ var tarteaucitron = {
             for (index = 0; index < tarteaucitron.job.length; index += 1) {
                 service = s[tarteaucitron.job[index]];
                 key = service.key;
+                if (status === false && service.require !== undefined && service.require === true) {
+                    continue;
+                }
                 if (tarteaucitron.state[key] !== status) {
                     if (status === false && tarteaucitron.launch[key] === true) {
                         tarteaucitron.reloadThePage = true;
@@ -532,7 +536,12 @@ var tarteaucitron = {
         "respond": function (el, status) {
             "use strict";
             var key = el.id.replace(new RegExp("(Eng[0-9]+|Allow|Deni)ed", "g"), '');
-        
+
+            // if value is false and service require
+            if (status === false && service.require !== undefined && service.require === true) {
+                return;
+            }
+
             // return if same state
             if (tarteaucitron.state[key] === status) {
                 return;
@@ -865,14 +874,15 @@ var tarteaucitron = {
                 expireTime = time + 31536000000, // 365 days
                 regex = new RegExp("!" + key + "=(wait|true|false)", "g"),
                 cookie = tarteaucitron.cookie.read().replace(regex, ""),
-                value = 'tarteaucitron=' + cookie + '!' + key + '=' + status;
-            
-            if (tarteaucitron.cookie.read().indexOf(key + '=' + status) === -1) {
+                value = 'tarteaucitron=' + cookie + '!' + key + '=' + status,
+                domain = (tarteaucitron.parameters.cookieDomain !== undefined && tarteaucitron.parameters.cookieDomain !== '') ? 'domain=' + tarteaucitron.parameters.cookieDomain + ';' : '';
+
+          if (tarteaucitron.cookie.read().indexOf(key + '=' + status) === -1) {
                 tarteaucitron.pro('!' + key + '=' + status);
             }
 
             d.setTime(expireTime);
-            document.cookie = value + '; expires=' + d.toGMTString() + '; path=/;';
+            document.cookie = value + '; expires=' + d.toGMTString() + '; path=/;' + domain;
         },
         "read": function () {
             "use strict";
